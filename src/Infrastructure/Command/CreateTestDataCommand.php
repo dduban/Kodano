@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Command;
+namespace App\Infrastructure\Command;
 
 use App\Domain\Entity\Category;
 use App\Domain\Entity\Product;
+use App\Domain\Repository\CategoryRepositoryInterface;
+use App\Domain\Repository\ProductRepositoryInterface;
+use App\Domain\ValueObject\CategoryCode;
 use Ramsey\Uuid\Uuid;
-use Repository\CategoryRepositoryInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,7 +35,6 @@ class CreateTestDataCommand extends Command
 
         $io->title('Creating test data');
 
-        // Create categories
         $categories = [];
 
         $categoryData = [
