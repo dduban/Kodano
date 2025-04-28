@@ -5,7 +5,15 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Domain\ValueObject\CategoryCode;
+use App\Infrastructure\Controller\CategoryController;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,7 +24,39 @@ use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'categories')]
-
+#[ApiResource(
+    operations: [
+        new Get(
+            controller: CategoryController::class,
+            normalizationContext: ['groups' => ['category:read']],
+            name: 'get_category'
+        ),
+        new GetCollection(
+            controller: CategoryController::class,
+            normalizationContext: ['groups' => ['category:read']],
+            name: 'get_categories_collection'
+        ),
+        new Post(
+            controller: CategoryController::class,
+            denormalizationContext: ['groups' => ['category:write']],
+            name: 'create_category'
+        ),
+        new Put(
+            controller: CategoryController::class,
+            denormalizationContext: ['groups' => ['category:write']],
+            name: 'update_category'
+        ),
+        new Patch(
+            controller: CategoryController::class,
+            denormalizationContext: ['groups' => ['category:write']],
+            name: 'patch_category'
+        ),
+        new Delete(
+            controller: CategoryController::class,
+            name: 'delete_category'
+        ),
+    ]
+)]
 class Category
 {
     #[ORM\Id]

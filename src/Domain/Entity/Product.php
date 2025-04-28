@@ -5,6 +5,15 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Infrastructure\Controller\NotificationController;
+use App\Infrastructure\Controller\ProductController;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,6 +24,95 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'products')]
+#[ApiResource(
+    operations: [
+        new Get(
+            controller: ProductController::class,
+            normalizationContext: ['groups' => ['product:read']],
+            name: 'get_product'
+        ),
+        new GetCollection(
+            controller: ProductController::class,
+            normalizationContext: ['groups' => ['product:read']],
+            name: 'get_products_collection'
+        ),
+        new Post(
+            controller: ProductController::class,
+            denormalizationContext: ['groups' => ['product:write']],
+            name: 'create_product'
+        ),
+        new Put(
+            controller: ProductController::class,
+            denormalizationContext: ['groups' => ['product:write']],
+            name: 'update_product'
+        ),
+        new Patch(
+            controller: ProductController::class,
+            denormalizationContext: ['groups' => ['product:write']],
+            name: 'patch_product'
+        ),
+        new Delete(
+            controller: ProductController::class,
+            name: 'delete_product'
+        ),
+        new Post(
+            uriTemplate: '/products/{id}/notify',
+            controller: NotificationController::class,
+            openapiContext: [
+                'summary' => 'Sends notifications for a specific product.',
+                'description' => 'Triggers the notification sending process for the product identified by ID.',
+                'requestBody' => ['content' => []],
+                'responses' => [
+                    '200' => ['description' => 'Notifications sent successfully'],
+                    '404' => ['description' => 'Product not found'],
+                ],
+                'tags' => ['Product'],
+            ],
+            read: false,
+            validate: false,
+            write: false,
+            name: 'notify_product'
+        ),
+        new Post(
+            uriTemplate: '/products/{id}/categories/{categoryId}',
+            controller: ProductController::class,
+            openapiContext: [
+                'summary' => 'Adds a category to a product.',
+                'description' => 'Associates the specified category with the product.',
+                'requestBody' => ['content' => []],
+                'responses' => [
+                    '200' => ['description' => 'Category added successfully'],
+                    '404' => ['description' => 'Product or category not found'],
+                ],
+                'tags' => ['Product'],
+            ],
+            normalizationContext: ['groups' => ['product:read']],
+            read: false,
+            validate: false,
+            write: false,
+            name: 'add_category_to_product'
+        ),
+        new Delete(
+            uriTemplate: '/products/{id}/categories/{categoryId}',
+            controller: ProductController::class,
+            openapiContext: [
+                'summary' => 'Removes a category from a product.',
+                'description' => 'Disassociates the specified category from the product.',
+                'responses' => [
+                    '200' => ['description' => 'Category removed successfully'],
+                    '404' => ['description' => 'Product or category not found'],
+                    '400' => ['description' => 'Validation error (e.g., product must have at least one category)'],
+                ],
+                'tags' => ['Product'],
+            ],
+            normalizationContext: ['groups' => ['product:read']],
+            read: false,
+            validate: false,
+            write: false,
+            name: 'remove_category_from_product'
+        )
+    ]
+)]
 class Product
 {
     #[ORM\Id]
