@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Domain\Entity;
+
 use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
