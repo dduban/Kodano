@@ -1,0 +1,18 @@
+api_platform:
+    title: 'Kodano API'
+    description: 'Products and Categories API'
+    version: '1.0.0'
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/Domain/Entity'
+    defaults:
+        formats:
+            json: [ 'application/json' ]
+        pagination_enabled: false
+    formats:
+        json: [ 'application/json' ]
+    swagger:
+        versions: [3]
+    enable_docs: true
+    enable_entrypoint: true
+    show_webby: true
