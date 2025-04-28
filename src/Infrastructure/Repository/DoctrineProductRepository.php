@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace App\Infrastructure\Repository;
+
 use App\Domain\Entity\Product;
 use App\Domain\Repository\ProductRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;

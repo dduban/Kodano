@@ -57,7 +57,7 @@ class ProductController extends AbstractController
         }
     }
 
-    #[Route('/{id}', name: 'app_product_update', methods: ['PUT'])]
+    #[Route('/{id}', name: 'app_product_update', methods: ['PUT', 'PATCH'])]
     public function update(string $id, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -96,6 +96,30 @@ class ProductController extends AbstractController
             return $this->json(['message' => 'Notifications sent successfully'], Response::HTTP_OK);
         } catch (ProductNotFoundException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        }
+    }
+
+    #[Route('/{id}/categories/{categoryId}', name: 'app_product_add_category', methods: ['POST'])]
+    public function addCategory(string $id, string $categoryId): JsonResponse
+    {
+        try {
+            $product = $this->productService->addCategory($id, $categoryId);
+            return $this->json($product, Response::HTTP_OK, [], ['groups' => 'product:read']);
+        } catch (ProductNotFoundException | CategoryNotFoundException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        }
+    }
+
+    #[Route('/{id}/categories/{categoryId}', name: 'app_product_remove_category', methods: ['DELETE'])]
+    public function removeCategory(string $id, string $categoryId): JsonResponse
+    {
+        try {
+            $product = $this->productService->removeCategory($id, $categoryId);
+            return $this->json($product, Response::HTTP_OK, [], ['groups' => 'product:read']);
+        } catch (ProductNotFoundException | CategoryNotFoundException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        } catch (ProductValidationException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 }

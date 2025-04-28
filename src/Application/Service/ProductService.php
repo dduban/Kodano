@@ -9,7 +9,6 @@ use App\Domain\Exception\Product\ProductValidationException;
 use App\Domain\Exception\Product\ProductNotFoundException;
 use App\Domain\Repository\CategoryRepositoryInterface;
 use App\Domain\Repository\ProductRepositoryInterface;
-use NotificationService;
 use Ramsey\Uuid\Uuid;
 
 readonly class ProductService
@@ -64,11 +63,16 @@ readonly class ProductService
         $product = new Product(Uuid::uuid4(), $name, $price);
 
         foreach ($categoryIds as $categoryId) {
-            $category = $this->categoryRepository->findById(Uuid::fromString($categoryId));
-            if (!$category) {
+            try {
+                $uuid = Uuid::fromString($categoryId);
+                $category = $this->categoryRepository->findById($uuid);
+                if (!$category) {
+                    throw new CategoryNotFoundException($categoryId);
+                }
+                $product->addCategory($category);
+            } catch (\Ramsey\Uuid\Exception\InvalidUuidStringException $e) {
                 throw new CategoryNotFoundException($categoryId);
             }
-            $product->addCategory($category);
         }
 
         $this->productRepository->save($product);
@@ -104,11 +108,16 @@ readonly class ProductService
             }
 
             foreach ($categoryIds as $categoryId) {
-                $category = $this->categoryRepository->findById(Uuid::fromString($categoryId));
-                if (!$category) {
+                try {
+                    $uuid = Uuid::fromString($categoryId);
+                    $category = $this->categoryRepository->findById($uuid);
+                    if (!$category) {
+                        throw new CategoryNotFoundException($categoryId);
+                    }
+                    $product->addCategory($category);
+                } catch (\Ramsey\Uuid\Exception\InvalidUuidStringException $e) {
                     throw new CategoryNotFoundException($categoryId);
                 }
-                $product->addCategory($category);
             }
         }
 
@@ -136,5 +145,62 @@ readonly class ProductService
     {
         $product = $this->findById($id);
         $this->notificationService->sendAll($product);
+    }
+
+    /**
+     * @param string $id
+     * @param string $categoryId
+     * @return Product
+     */
+    public function addCategory(string $id, string $categoryId): Product
+    {
+        $product = $this->findById($id);
+
+        try {
+            $categoryUuid = Uuid::fromString($categoryId);
+            $category = $this->categoryRepository->findById($categoryUuid);
+
+            if (!$category) {
+                throw new CategoryNotFoundException($categoryId);
+            }
+
+            $product->addCategory($category);
+            $this->productRepository->save($product);
+
+            return $product;
+        } catch (\Ramsey\Uuid\Exception\InvalidUuidStringException $e) {
+            throw new CategoryNotFoundException($categoryId);
+        }
+    }
+
+    /**
+     * @param string $id
+     * @param string $categoryId
+     * @return Product
+     */
+    public function removeCategory(string $id, string $categoryId): Product
+    {
+        $product = $this->findById($id);
+
+        try {
+            $categoryUuid = Uuid::fromString($categoryId);
+            $category = $this->categoryRepository->findById($categoryUuid);
+
+            if (!$category) {
+                throw new CategoryNotFoundException($categoryId);
+            }
+
+            $product->removeCategory($category);
+
+            if (count($product->getCategories()) === 0) {
+                throw new ProductValidationException('Product must belong to at least one category');
+            }
+
+            $this->productRepository->save($product);
+
+            return $product;
+        } catch (\Ramsey\Uuid\Exception\InvalidUuidStringException $e) {
+            throw new CategoryNotFoundException($categoryId);
+        }
     }
 }
