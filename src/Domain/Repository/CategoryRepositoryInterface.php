@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Repository;
+namespace App\Domain\Repository;
 
-use Category;
+use App\Domain\Entity\Category;
+use App\Domain\ValueObject\CategoryCode;
 use Ramsey\Uuid\UuidInterface;
-use ValueObject\CategoryCode;
 
 interface CategoryRepositoryInterface
 {

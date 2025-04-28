@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 
+use App\Domain\Entity\Category;
+use App\Domain\Repository\CategoryRepositoryInterface;
+use App\Domain\ValueObject\CategoryCode;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
-use Repository\CategoryRepositoryInterface;
-use ValueObject\CategoryCode;
 
 class DoctrineCategoryRepository implements CategoryRepositoryInterface
 {

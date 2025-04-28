@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Domain\Entity\Product;
+use App\Domain\Repository\ProductRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
-use Repository\ProductRepositoryInterface;
 
 class DoctrineProductRepository implements ProductRepositoryInterface
 {
