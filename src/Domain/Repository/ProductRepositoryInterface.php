@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Repository;
 
-use Product;
+use App\Domain\Entity\Product;
 use Ramsey\Uuid\UuidInterface;
 
 interface ProductRepositoryInterface
